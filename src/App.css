@@ -1,0 +1,136 @@
+:root {
+  /* Global font and background */
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Leva theme variables */
+  --leva-colors-elevation1: #282828 !important;
+  --leva-colors-elevation2: #303030 !important;
+  --leva-colors-elevation3: #383838 !important;
+  --leva-colors-accent1: #ffffff !important; 
+  --leva-colors-accent2: #e7e7e7 !important;
+  --leva-colors-accent3: #ffffff !important;
+  --leva-colors-highlight1: #ffffff !important;
+  --leva-colors-highlight2: #ffffff !important;
+  --leva-colors-highlight3: #fefefe !important;
+  --leva-colors-vivid1: #ffcc00;
+  --leva-colors-folderWidgetColor: var(--leva-colors-highlight2);
+  --leva-colors-folderTextColor: var(--leva-colors-highlight3);
+  --leva-colors-toolTipBackground: var(--leva-colors-highlight3);
+  --leva-colors-toolTipText: var(--leva-colors-elevation2);
+
+  --leva-radii-xs: 2px;
+  --leva-radii-sm: 3px;
+  --leva-radii-lg: 10px;
+  --leva-space-xs: 3px;
+  --leva-space-sm: 6px;
+  --leva-space-md: 10px;
+  --leva-space-rowGap: 7px;
+  --leva-space-colGap: 7px;
+  --leva-fonts-mono: ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace;
+  --leva-fonts-sans: system-ui, sans-serif;
+  --leva-fontSizes-root: 11px;
+  --leva-fontSizes-toolTip: var(--leva-fontSizes-root);
+  --leva-sizes-rootWidth: 280px;
+  --leva-sizes-controlWidth: 160px;
+  --leva-sizes-numberInputMinWidth: 38px;
+  --leva-sizes-scrubberWidth: 8px;
+  --leva-sizes-scrubberHeight: 16px;
+  --leva-sizes-rowHeight: 24px;
+  --leva-sizes-folderTitleHeight: 20px;
+  --leva-sizes-checkboxSize: 16px;
+  --leva-sizes-joystickWidth: 100px;
+  --leva-sizes-joystickHeight: 100px;
+  --leva-sizes-colorPickerWidth: var(--leva-sizes-controlWidth);
+  --leva-sizes-colorPickerHeight: 100px;
+  --leva-sizes-imagePreviewWidth: var(--leva-sizes-controlWidth);
+  --leva-sizes-imagePreviewHeight: 100px;
+  --leva-sizes-monitorHeight: 60px;
+  --leva-sizes-titleBarHeight: 39px;
+  --leva-shadows-level1: 0 0 9px 0 #00000088;
+  --leva-shadows-level2: 0 4px 14px #00000033;
+  --leva-borderWidths-root: 0px;
+  --leva-borderWidths-input: 1px;
+  --leva-borderWidths-focus: 1px;
+  --leva-borderWidths-hover: 1px;
+  --leva-borderWidths-active: 1px;
+  --leva-borderWidths-folder: 1px;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Updated Leva panel container with dark theme */
+.leva {
+  background-color: var(--leva-colors-elevation1) !important;
+  border: 1px solid var(--leva-colors-elevation3) !important;
+  border-radius: var(--leva-radii-lg);
+  box-shadow: var(--leva-shadows-level1);
+  font-family: var(--leva-fonts-sans);
+  color: var(--leva-colors-highlight3);
+  max-width: var(--leva-sizes-rootWidth);
+  padding: var(--leva-space-md);
+}
+
+/* Updated header styling for the Leva panel */
+.leva__header {
+  background-color: var(--leva-colors-elevation2);
+  font-weight: bold;
+  padding: var(--leva-space-sm) var(--leva-space-md);
+  border-bottom: 1px solid var(--leva-colors-elevation3);
+  border-top-left-radius: var(--leva-radii-lg);
+  border-top-right-radius: var(--leva-radii-lg);
+}
+
+/* Updated body/content area */
+.leva__body {
+  padding: var(--leva-space-md);
+}
+
+/* Logo and additional styles remain similar */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em var(--leva-colors-accent2));
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
