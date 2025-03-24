@@ -126,7 +126,7 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
         </AccumulativeShadows>
       </group>
       <CameraControls ref={controlsRef} minDistance={1} maxDistance={8} />
-      <Environment files="/hdri/Studio.hdr" background={false} intensity={10} />
+      <Environment files="/hdri/studio.hdr" background={false} intensity={10} />
       <GizmoHelper alignment="top-right" margin={[110, 100]} controls={controlsRef}>
         <GizmoViewcube onClick={handleCubeClick} />
       </GizmoHelper>
