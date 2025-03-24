@@ -14,7 +14,7 @@ import * as maleMeasurementConverter from './maleMeasurementConverter';
 // Import Scene which will receive the conversion functions, gender, and params
 import Scene from './Scene';
 
-import './app.css';
+import './App.css';
 
 function App() {
   // Gender toggle state: 'female' or 'male'
