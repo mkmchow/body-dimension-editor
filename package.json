@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "postinstall": "git lfs pull",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
