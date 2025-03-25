@@ -1,7 +1,7 @@
 // Model.jsx
 import React, { useRef, useCallback, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 const baubleMaterial = new THREE.MeshStandardMaterial({
@@ -12,9 +12,8 @@ const baubleMaterial = new THREE.MeshStandardMaterial({
   emissive: "#000000"
 });
 
-function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, convertMeasurements }) {
+function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, convertMeasurements, onModelLoaded }) {
   const group = useRef();
-  // Load the correct model based on gender (e.g. '/female.glb' or '/male.glb')
   const modelMap = {
     female: 'female-model',
     male: 'male-model',
@@ -30,14 +29,12 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
     if (modelScene) {
       modelScene.traverse(child => {
         if (child.isBone) {
-          // Optionally, log or inspect bones
-          // console.log("Bone:", child.name);
+          // Inspect bones if needed
         }
       });
     }
   }, [modelScene]);
 
-  // Update the model based on user measurements and conversions
   const updateModel = useCallback(() => {
     if (!group.current) return;
 
@@ -49,7 +46,6 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
         child.castShadow = true;
         child.receiveShadow = true;
       }
-      // Update morph target influences using the calculated shape keys
       if (child.isMesh && child.morphTargetDictionary && child.morphTargetInfluences) {
         outputs.body_dimensions.forEach(item => {
           const key = item.key;
@@ -60,7 +56,6 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
           }
         });
       }
-      // Update bone scales based on converted measurements
       if (child.isSkinnedMesh && child.skeleton) {
         outputs.body_dimension_lengths.forEach(item => {
           let boneName = item.key;
@@ -85,7 +80,6 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
       }
     });
 
-    // Adjust head scaling and rotations
     group.current.traverse(child => {
       if (child.isSkinnedMesh && child.skeleton) {
         const headBone = child.skeleton.getBoneByName('head');
@@ -119,12 +113,10 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
     });
   }, [params, getAdjustedInputs, convertMeasurements]);
 
-  // Call updateModel on every frame
   useFrame(() => {
     if (group.current) updateModel();
   });
 
-  // Once the model scene is loaded, adjust materials and add it to the group
   useEffect(() => {
     if (modelScene && group.current && group.current.children.length === 0) {
       modelScene.traverse(child => {
@@ -133,7 +125,6 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
           child.castShadow = true;
           child.receiveShadow = true;
         }
-        // Set the foot bone reference if not already set
         if (child.isBone && child.name === "toeL_end") {
           footBoneRef.current = child;
         }        
@@ -141,8 +132,13 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
       group.current.add(modelScene);
       if (modelRef) modelRef.current = group.current;
       updateModel();
+
+      // Notify the parent that the model has finished loading
+      if (onModelLoaded) {
+        onModelLoaded();
+      }
     }
-  }, [modelScene, updateModel, footBoneRef, modelRef]);
+  }, [modelScene, updateModel, footBoneRef, modelRef, onModelLoaded]);
 
   return <group ref={group} />;
 }

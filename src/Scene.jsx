@@ -1,7 +1,7 @@
 // Scene.jsx
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { CameraControls, AccumulativeShadows, RandomizedLight, Environment, GizmoHelper, GizmoViewcube } from '@react-three/drei';
+import { CameraControls, AccumulativeShadows, RandomizedLight, Environment, GizmoHelper, GizmoViewcube, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import Model from './Model';
 
@@ -10,11 +10,16 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
   const modelRef = useRef();
   const controlsRef = useRef();
   const shadowGroupRef = useRef();
+  const [modelLoaded, setModelLoaded] = useState(false);
+
+  // Callback to be passed to Model
+  const handleModelLoaded = () => {
+    setModelLoaded(true);
+  };
 
   // Click handler for the GizmoViewcube to reorient the camera
   function handleCubeClick(event) {
     event.stopPropagation();
-
     const faceIndexToDirection = {
       0: 'right',
       1: 'right',
@@ -29,7 +34,6 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
       10: 'back',
       11: 'back'
     };
-
     const face = faceIndexToDirection[event.faceIndex];
     if (!face) return;
 
@@ -79,21 +83,19 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
     }
   }
 
-  // Set initial camera position based on model bounds
+  // Set the camera position based on model bounds after it's loaded
   useEffect(() => {
     if (!modelRef.current || !controlsRef.current) return;
-
     const bbox = new THREE.Box3().setFromObject(modelRef.current);
     const center = new THREE.Vector3();
     bbox.getCenter(center);
     center.x += 0.06;
-
     controlsRef.current.setLookAt(
       -3.3, 1.5, 6,
       center.x, center.y, center.z,
       false
     );
-  }, []);
+  }, [modelLoaded]);
 
   // Update shadow group to follow the foot bone
   useFrame(() => {
@@ -106,16 +108,29 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
 
   return (
     <>
-      <ambientLight intensity={0} />
-      <Model
-        key={gender}
-        params={params}
-        footBoneRef={footBoneRef}
-        modelRef={modelRef}
-        gender={gender}
-        getAdjustedInputs={getAdjustedInputs}
-        convertMeasurements={convertMeasurements}
+      <ambientLight intensity={0.5} />
+      
+      {/* Only the Model is wrapped in Suspense */}
+      <Suspense
+        fallback={
+          <Html center>
+              <div className="spinner">
+            </div>
+          </Html>
+        }
+      >
+        <Model
+          key={gender}
+          params={params}
+          footBoneRef={footBoneRef}
+          modelRef={modelRef}
+          gender={gender}
+          getAdjustedInputs={getAdjustedInputs}
+          convertMeasurements={convertMeasurements}
+          onModelLoaded={handleModelLoaded}
         />
+      </Suspense>
+
       <spotLight position={[2, 4, 3]} angle={1} penumbra={0.5} intensity={10} castShadow />
       <spotLight position={[-2, 4, 3]} angle={0.3} penumbra={0.5} intensity={0.5} castShadow />
       <group ref={shadowGroupRef}>
