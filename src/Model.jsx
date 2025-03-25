@@ -15,7 +15,8 @@ const baubleMaterial = new THREE.MeshStandardMaterial({
 function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, convertMeasurements }) {
   const group = useRef();
   // Load the correct model based on gender (e.g. '/female.glb' or '/male.glb')
-  const { scene: modelScene } = useGLTF(`/${gender}.glb`);
+  const version = "v=2"; // bump when the file changes
+  useGLTF(`/${gender}.glb?${version}`);  
   const originalHeadRotation = useRef(null);
   const lastHeadChildren = useRef("");
 
