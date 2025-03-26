@@ -1,23 +1,38 @@
-// Scene.jsx
 import React, { useRef, useEffect, useState, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { CameraControls, AccumulativeShadows, RandomizedLight, Environment, GizmoHelper, GizmoViewcube, Html } from '@react-three/drei';
+import {
+  CameraControls,
+  AccumulativeShadows,
+  RandomizedLight,
+  Environment,
+  GizmoHelper,
+  GizmoViewcube,
+} from '@react-three/drei';
 import * as THREE from 'three';
 import Model from './Model';
 
-function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
+function Scene({
+  params,
+  gender,
+  getAdjustedInputs,
+  convertMeasurements,
+  onLoadStart,
+  onLoadEnd,
+}) {
   const footBoneRef = useRef();
   const modelRef = useRef();
   const controlsRef = useRef();
   const shadowGroupRef = useRef();
+  const shadowRef = useRef();
+
   const [modelLoaded, setModelLoaded] = useState(false);
 
-  // Callback to be passed to Model
   const handleModelLoaded = () => {
     setModelLoaded(true);
+    if (onLoadEnd) onLoadEnd();
   };
 
-  // Click handler for the GizmoViewcube to reorient the camera
+  // Handle cube clicks to orient the camera
   function handleCubeClick(event) {
     event.stopPropagation();
     const faceIndexToDirection = {
@@ -32,7 +47,7 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
       8: 'front',
       9: 'front',
       10: 'back',
-      11: 'back'
+      11: 'back',
     };
     const face = faceIndexToDirection[event.faceIndex];
     if (!face) return;
@@ -76,14 +91,18 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
 
     if (controls) {
       controls.setLookAt(
-        cameraPosition.x, cameraPosition.y, cameraPosition.z,
-        lookAtTarget.x, lookAtTarget.y, lookAtTarget.z,
+        cameraPosition.x,
+        cameraPosition.y,
+        cameraPosition.z,
+        lookAtTarget.x,
+        lookAtTarget.y,
+        lookAtTarget.z,
         true
       );
     }
   }
 
-  // Set the camera position based on model bounds after it's loaded
+  // Set camera position on model load
   useEffect(() => {
     if (!modelRef.current || !controlsRef.current) return;
     const bbox = new THREE.Box3().setFromObject(modelRef.current);
@@ -91,13 +110,17 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
     bbox.getCenter(center);
     center.x += 0.06;
     controlsRef.current.setLookAt(
-      -3.3, 1.5, 6,
-      center.x, center.y, center.z,
+      -3.3,
+      1.5,
+      6,
+      center.x,
+      center.y,
+      center.z,
       false
     );
   }, [modelLoaded]);
 
-  // Update shadow group to follow the foot bone
+  // Shadow group follows foot bone
   useFrame(() => {
     if (footBoneRef.current && shadowGroupRef.current) {
       const worldPos = new THREE.Vector3();
@@ -109,32 +132,55 @@ function Scene({ params, gender, getAdjustedInputs, convertMeasurements }) {
   return (
     <>
       <ambientLight intensity={0.5} />
-      
-      {/* Only the Model is wrapped in Suspense */}
-      <Suspense
-        fallback={
-          <Html center>
-              <div className="spinner">
-            </div>
-          </Html>
-        }
-      >
-        <Model
-          key={gender}
-          params={params}
-          footBoneRef={footBoneRef}
-          modelRef={modelRef}
-          gender={gender}
-          getAdjustedInputs={getAdjustedInputs}
-          convertMeasurements={convertMeasurements}
-          onModelLoaded={handleModelLoaded}
-        />
+
+      <Suspense fallback={null}>
+        {gender && (
+          <Model
+            key={gender}
+            params={params}
+            footBoneRef={footBoneRef}
+            modelRef={modelRef}
+            gender={gender}
+            getAdjustedInputs={getAdjustedInputs}
+            convertMeasurements={convertMeasurements}
+            onModelLoaded={() => {
+              if (onLoadEnd) onLoadEnd();
+              setModelLoaded(true);
+            }}
+          />
+        )}
       </Suspense>
 
-      <spotLight position={[2, 4, 3]} angle={1} penumbra={0.5} intensity={10} castShadow />
-      <spotLight position={[-2, 4, 3]} angle={0.3} penumbra={0.5} intensity={0.5} castShadow />
+      {useEffect(() => {
+        if (gender && onLoadStart) {
+          onLoadStart();
+        }
+      }, [gender])}
+
+      <spotLight
+        position={[2, 4, 3]}
+        angle={1}
+        penumbra={0.5}
+        intensity={10}
+        castShadow
+      />
+      <spotLight
+        position={[-2, 4, 3]}
+        angle={0.3}
+        penumbra={0.5}
+        intensity={0.5}
+        castShadow
+      />
       <group ref={shadowGroupRef}>
-        <AccumulativeShadows temporal frames={70} alphaTest={0.75} opacity={0.6} scale={5}>
+        <AccumulativeShadows
+          key={gender}
+          ref={shadowRef}
+          temporal
+          frames={70}
+          alphaTest={0.75}
+          opacity={0.6}
+          scale={5}
+        >
           <group rotation={[0, Math.PI / 4, 0]}>
             <RandomizedLight radius={6} position={[0, 5, 10]} bias={0.001} />
           </group>

@@ -117,28 +117,32 @@ function Model({ params, footBoneRef, modelRef, gender, getAdjustedInputs, conve
     if (group.current) updateModel();
   });
 
+  
   useEffect(() => {
-    if (modelScene && group.current && group.current.children.length === 0) {
-      modelScene.traverse(child => {
-        if (child.isMesh) {
-          child.material = baubleMaterial;
-          child.castShadow = true;
-          child.receiveShadow = true;
-        }
-        if (child.isBone && child.name === "toeL_end") {
-          footBoneRef.current = child;
-        }        
-      });
-      group.current.add(modelScene);
-      if (modelRef) modelRef.current = group.current;
-      updateModel();
-
-      // Notify the parent that the model has finished loading
-      if (onModelLoaded) {
-        onModelLoaded();
+    if (!modelScene || !group.current) return;
+  
+    group.current.clear();
+  
+    modelScene.traverse(child => {
+      if (child.isMesh) {
+        child.material = baubleMaterial;
+        child.castShadow = true;
+        child.receiveShadow = true;
       }
-    }
-  }, [modelScene, updateModel, footBoneRef, modelRef, onModelLoaded]);
+      if (child.isBone && child.name === "toeL_end") {
+        footBoneRef.current = child;
+      }
+    });
+  
+    group.current.add(modelScene);
+  
+    if (modelRef) modelRef.current = group.current;
+  
+    updateModel();
+  
+    // ✅ Confirm callback gets fired once model is added
+    if (onModelLoaded) onModelLoaded();
+  }, [modelScene]);  
 
   return <group ref={group} />;
 }
