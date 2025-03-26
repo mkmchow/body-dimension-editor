@@ -11,6 +11,19 @@ import {
 import * as THREE from 'three';
 import Model from './Model';
 
+function ResponsiveGizmo({ size, margin, controlsRef, onClick }) {
+  return (
+    <GizmoHelper
+      alignment="top-right"
+      margin={margin}
+      controls={controlsRef}
+      key={`gizmo-${size}-${margin[0]}-${margin[1]}`} 
+    >
+      <GizmoViewcube size={size} onClick={onClick} />
+    </GizmoHelper>
+  );
+}
+
 function Scene({
   params,
   gender,
@@ -18,7 +31,10 @@ function Scene({
   convertMeasurements,
   onLoadStart,
   onLoadEnd,
+  canvasWrapperRef,
 }) {
+  const [gizmoSize, setGizmoSize] = useState(80);
+  const [gizmoMargin, setGizmoMargin] = useState([110, 100]);
   const footBoneRef = useRef();
   const modelRef = useRef();
   const controlsRef = useRef();
@@ -120,6 +136,42 @@ function Scene({
     );
   }, [modelLoaded]);
 
+  //Gizmo Responsiveness
+  useEffect(() => {
+      function updateGizmoSize() {
+        if (!canvasWrapperRef.current) return;
+        const width = canvasWrapperRef.current.offsetWidth;
+    
+        if (width < 480) {
+          setGizmoSize(100);
+          setGizmoMargin([60, 60]);
+        } else if (width < 768) {
+          setGizmoSize(100);
+          setGizmoMargin([70, 70]);
+        } else if (width < 1024) {
+          setGizmoSize(100);
+          setGizmoMargin([80, 80]);
+        } else {
+          setGizmoSize(100);
+          setGizmoMargin([90, 90]);
+        }
+      }
+    
+      updateGizmoSize();
+      window.addEventListener('resize', updateGizmoSize);
+    
+      return () => {
+        window.removeEventListener('resize', updateGizmoSize);
+      };
+    }, []);
+
+
+  useEffect(() => {
+    if (gender && onLoadStart) {
+      onLoadStart();
+    }
+  }, [gender])
+
   // Shadow group follows foot bone
   useFrame(() => {
     if (footBoneRef.current && shadowGroupRef.current) {
@@ -150,12 +202,6 @@ function Scene({
           />
         )}
       </Suspense>
-
-      {useEffect(() => {
-        if (gender && onLoadStart) {
-          onLoadStart();
-        }
-      }, [gender])}
 
       <spotLight
         position={[2, 4, 3]}
@@ -188,9 +234,12 @@ function Scene({
       </group>
       <CameraControls ref={controlsRef} minDistance={1} maxDistance={8} />
       <Environment files="/hdri/studio.hdr" background={false} intensity={10} />
-      <GizmoHelper alignment="top-right" margin={[110, 100]} controls={controlsRef}>
-        <GizmoViewcube onClick={handleCubeClick} />
-      </GizmoHelper>
+      <ResponsiveGizmo
+        size={gizmoSize}
+        margin={gizmoMargin}
+        controlsRef={controlsRef}
+        onClick={handleCubeClick}
+      />
     </>
   );
 }

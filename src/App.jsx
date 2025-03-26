@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Leva, useControls } from 'leva';
 
@@ -14,9 +14,10 @@ import Scene from './Scene';
 import './App.css';
 
 function App() {
+  const canvasWrapperRef = useRef();
   const [gender, setGender] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  
   const femaleParams = useControls('female', femaleDefaultParams);
   const maleParams = useControls('male', maleDefaultParams);
 
@@ -39,7 +40,7 @@ function App() {
         <button onClick={() => setGender('male')}>Male</button>
       </div>
 
-      <div className="canvas-wrapper">
+      <div className="canvas-wrapper" ref={canvasWrapperRef}>
       <Canvas
         shadows
         gl={{ antialias: true }}
@@ -53,6 +54,7 @@ function App() {
           convertMeasurements={convertMeasurements}
           onLoadStart={() => setIsLoading(true)}
           onLoadEnd={() => setIsLoading(false)}
+          canvasWrapperRef={canvasWrapperRef}
         />
       </Canvas>
 
